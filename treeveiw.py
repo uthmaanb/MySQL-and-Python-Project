@@ -1,7 +1,6 @@
 import mysql.connector
 from tkinter import *
-from tkinter import ttk, messagebox
-
+from tkinter import ttk, messagebox, simpledialog
 
 root = Tk()
 root.geometry("920x650")
@@ -71,10 +70,13 @@ surname = StringVar()
 email = StringVar()
 cell = StringVar()
 values = StringVar()  # set variable to keep track of option value selected
+kin_name = StringVar()
+kin_surname = StringVar()
+kin_cell = StringVar()
 
 
 def add_data(tree):
-    frame = Frame(root, width=400, height=350, bg='grey')
+    frame = Frame(root, width=700, height=350, bg='grey')
     frame.place(x=100, y=250)
     Label(frame, text='ID').place(x=50, y=20)
     ent1 = Entry(frame, textvariable=id_num).place(x=170, y=20)
@@ -94,20 +96,43 @@ def add_data(tree):
 
     option = ["lecturer", "Student", 'admin']  # set values for option list
     values.set(
-        "Select an option")  # set the default value on display (a value from list can be put by saying option[0])
+        "Select option")  # set the default value on display (a value from list can be put by saying option[0])
+
+    def activate(value):
+        values.set(value)
+        if value == "admin":
+            msg = messagebox.askquestion('ALERT!', 'Grant user Admin priveledges?')
+            if msg == 'yes':
+                pass_word = simpledialog.askstring("Input", "admin password",
+                                                   parent=root)
+                if pass_word is not None:
+                    for x in mycursor:
+                        if pass_word == x[3] and x[8] == 'admin':
+                            messagebox.showinfo('SUCCESS', 'Successfully added admin.')
+                else:
+                    frame.destroy()
+            elif msg == 'no':
+                frame.destroy()
 
     # Create the optionmenu widget and passing
     # the option and values to it.
-    opt = OptionMenu(frame, values, *option)
+    opt = OptionMenu(frame, values, *option, command=activate)
     opt.config(width=15)
     opt.place(x=170, y=230)
 
+    Label(frame, text='kin_name:', bg="red", font="poppins 10 bold").place(x=350, y=20)
+    ent8 = Entry(frame, textvariable=kin_name).place(x=470, y=20)
+    Label(frame, text='kin_surname:', bg="red", font="poppins 10 bold").place(x=350, y=50)
+    ent9 = Entry(frame, textvariable=kin_surname).place(x=470, y=50)
+    Label(frame, text='kin_cell:', bg="red", font="poppins 10 bold").place(x=350, y=80)
+    ent10 = Entry(frame, textvariable=kin_cell).place(x=470, y=80)
+
     def insert_data():
         if id_num.get() == "" or username.get() == "" or password.get() == "" or name.get() == "" or \
-                surname.get() == "" or email.get() == "" or cell.get() == "" or values.get() == 'Select an option':
+                surname.get() == "" or email.get() == "" or cell.get() == "" or values.get() == 'Select option':
             messagebox.showerror("Error", "Fill in all fields")
 
-        nonlocal ent1, ent2, ent3, ent4, ent5, ent6, ent7, opt
+        nonlocal ent1, ent2, ent3, ent4, ent5, ent6, ent7, opt, ent8, ent9, ent10
         id_ = id_num.get()
         u = username.get()
         p = password.get()
@@ -120,6 +145,12 @@ def add_data(tree):
                          ' %s, %s, %s, %s, %s, %s, %s)', (id_, u, p, n, s, e, c, r))
         mydb.commit()
         tree.insert('', 'end', text='', values=(mycursor.lastrowid, id_, u, p, n, s, e, c, r))
+
+        sql2 = "INSERT INTO next_of_kin (name, surname, cell, user_id) VALUES (%s, %s, %s, %s)"
+        val2 = (kin_name.get(), kin_surname.get(), kin_cell.get(), id_num.get())
+        mycursor.execute(sql2, val2)
+        mydb.commit()
+
         messagebox.showinfo('SUCCESS', 'REGISTERED')
         id_num.set('')
         username.set('')
@@ -128,7 +159,10 @@ def add_data(tree):
         surname.set('')
         email.set('')
         cell.set('')
-        role.set('')
+        values.set('Select option')
+        kin_name.set('')
+        kin_surname.set('')
+        kin_cell.set('')
         frame.destroy()
 
     def cancel():
@@ -138,8 +172,19 @@ def add_data(tree):
     Button(frame, text='Cancel', command=cancel, bg="red", font="poppins 10 bold", border="5").place(x=250, y=280)
 
 
+def cancel():
+    root.destroy()
+    import main
+
+
+def kill():
+    root.destroy()
+
+
 Button(root, text='Register', command=lambda: add_data(tree), bg="red", font="poppins 10 bold", border="5").place(x=100,
                                                                                                                   y=300)
-Button(root, text='admin', bg="red", font="poppins 10 bold", border="5").place(x=200, y=300)
+Button(root, text='cancel', command=cancel, bg="red", font="poppins 10 bold", border="5").place(x=200, y=300)
+Button(root, text='exit', command=kill, bg="red", font="poppins 10 bold", border="5").place(x=300, y=300)
+
 
 root.mainloop()
