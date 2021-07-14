@@ -10,7 +10,7 @@ root.title("MySQL treeveiw (Uthmaan Breda)")
 mydb = mysql.connector.connect(user='root', password='Themainp1zza!', host='127.0.0.1', database='login_lc',
                                auth_plugin='mysql_native_password')
 mycursor = mydb.cursor()
-mycursor.execute('SELECT * FROM users')
+mycursor.execute('SELECT * FROM users ORDER BY id')
 
 tree = ttk.Treeview(root)
 tree['show'] = 'headings'
@@ -172,6 +172,18 @@ def add_data(tree):
     Button(frame, text='Cancel', command=cancel, bg="red", font="poppins 10 bold", border="5").place(x=250, y=280)
 
 
+def delete_data(tree):
+    selected = tree.selection()[0]
+    print(tree.item(selected)['values'])
+    uid = tree.item(selected)['values'][0]
+    del_query = 'DELETE FROM users where id=%s'
+    sel_data = (uid,)
+    mycursor.execute(del_query, sel_data)
+    mydb.commit()
+    tree.delete(selected)
+    messagebox.showinfo('SUCCESS', 'User deleted')
+
+
 def cancel():
     root.destroy()
     import main
@@ -179,12 +191,15 @@ def cancel():
 
 def kill():
     root.destroy()
+    import logout
 
 
-Button(root, text='Register', command=lambda: add_data(tree), bg="red", font="poppins 10 bold", border="5").place(x=100,
-                                                                                                                  y=300)
-Button(root, text='cancel', command=cancel, bg="red", font="poppins 10 bold", border="5").place(x=200, y=300)
-Button(root, text='exit', command=kill, bg="red", font="poppins 10 bold", border="5").place(x=300, y=300)
+Button(root, text='Register', command=lambda: add_data(tree), bg="red", font="poppins 10 bold", border="5")\
+    .place(x=100, y=300)
+Button(root, text='delete', command=lambda: delete_data(tree), bg="red", font="poppins 10 bold", border="5")\
+    .place(x=200, y=300)
+Button(root, text='cancel', command=cancel, bg="red", font="poppins 10 bold", border="5").place(x=300, y=300)
+Button(root, text='exit', command=kill, bg="red", font="poppins 10 bold", border="5").place(x=400, y=300)
 
 
 root.mainloop()
