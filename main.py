@@ -1,6 +1,6 @@
 from tkinter import *
-import mysql
-import mysql.connector
+# import mysql
+import mysql.connector as mysql
 from tkinter import messagebox
 from datetime import datetime
 
@@ -24,35 +24,36 @@ def admin():
 
 
 def login():
-    date = datetime.now().date().strftime("%Y-%m-%d")
-    time = datetime.now().time().strftime('%H:%M:%S')
-    mydb = mysql.connector.connect(user='root',
-                                   password='Themainp1zza!',
-                                   host='127.0.0.1',
-                                   database='login_lc',
-                                   auth_plugin='mysql_native_password',
-                                   buffered=TRUE)
-    mycursor = mydb.cursor()
+    try:
+        mydb = mysql.connect(user='root',
+                             password='Themainp1zza!',
+                             host='127.0.0.1',
+                             database='login_lc',
+                             auth_plugin='mysql_native_password',
+                             buffered=True)
 
-    if user_ent.get() == '' or pass_ent.get() == '':
-        messagebox.showerror('error', 'fill in all fields', parent=root)
+        cursor = mydb.cursor()
+        cursor.execute("Select * from users")
 
-    mycursor.execute('Select username, password from users')
-    for i in mycursor:
-        if user_ent.get() == i[0] and pass_ent.get() == i[1]:
+        date = datetime.now().date().strftime("%Y-%m-%d")
+        time = datetime.now().time().strftime('%H:%M:%S')
 
-            sql = "INSERT INTO login (username, date_login, login) VALUES (%s, %s, %s)"
-            val = (user_ent.get(), date, time)
+        if user_ent.get() == "" or pass_ent.get() == "":
+            messagebox.showerror("Error!", "Fill in all fields")
+        for i in cursor:
+            if user_ent.get() == i[2] and pass_ent.get() == i[3]:
+                sql = "INSERT INTO login (username, date_login, login) VALUES (%s, %s, %s)"
+                values = (user_ent.get(), date, time)
+                cursor.execute(sql, values)
+                mydb.commit()
+                messagebox.showinfo("STATUS", "Access Granted. Welcome " + str(user_ent.get()))
+                root.destroy()
+                import logout
+        else:
+            messagebox.showerror("ERROR", "Access Denied")
 
-            mycursor.execute(sql, val)
-            mydb.commit()
-
-            messagebox.showinfo('Success', 'You are logged in')
-            root.destroy()
-            import logout
-
-    else:
-        messagebox.showerror('ERROR!!!!!!!!!!!', 'Incorrect credentials')
+    except mysql.Error as err:  # This except statement will catch all mysql errors
+        messagebox.showerror("Error", "Something went wrong: " + str(err))
 
 
 def guest():

@@ -35,9 +35,9 @@ def logout():
             mydb.commit()
 
             messagebox.showinfo('Success', 'You are logged out\n'
-                                           'Safe home, Straight home :)')
-            break
+                                           ' Safe home, Straight home :)')
             root.destroy()
+            import main
 
     else:
         messagebox.showerror('ERROR!!!!!!!!!!!', 'Incorrect credentials')

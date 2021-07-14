@@ -80,6 +80,7 @@ def register():
         mycursor.execute(sql2, val2)
         mydb.commit()
         messagebox.showinfo('status', 'registration successful')
+        root.destroy()
         import main
 
 
