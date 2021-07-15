@@ -175,6 +175,22 @@ def add_data(tree):
 def delete_data(tree):
     selected = tree.selection()[0]
     print(tree.item(selected)['values'])
+    uid = tree.item(selected)['values'][2]
+    del_query = 'DELETE FROM login where username=%s'
+    sel_data = (uid,)
+    mycursor.execute(del_query, sel_data)
+    mydb.commit()
+
+    selected = tree.selection()[0]
+    print(tree.item(selected)['values'])
+    uid = tree.item(selected)['values'][1]
+    del_query = 'DELETE FROM next_of_kin where user_id=%s'
+    sel_data = (uid,)
+    mycursor.execute(del_query, sel_data)
+    mydb.commit()
+
+    selected = tree.selection()[0]
+    print(tree.item(selected)['values'])
     uid = tree.item(selected)['values'][0]
     del_query = 'DELETE FROM users where id=%s'
     sel_data = (uid,)
