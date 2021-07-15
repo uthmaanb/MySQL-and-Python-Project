@@ -34,12 +34,26 @@ def pass_text(event):
 Label(root, text='Admin Login', height=2, bg="#ffffff", font=('poppins', 15, 'italic')).place(x=390, y=20)
 user_ent = Entry(root, font=('Poppins sans serif', 27), width=10)
 user_ent.insert(0, 'username')
+user_ent.focus()
 user_ent.bind('<Button-1>', name_text)
 user_ent.place(x=370, y=93)
-pass_ent = Entry(root, font=('Poppins sans serif', 27), width=10)
+pass_ent = Entry(root, show="*", font=('Poppins sans serif', 27), width=10)
 pass_ent.insert(0, 'password')
 pass_ent.bind('<Button-1>', pass_text)
 pass_ent.place(x=370, y=136)
+
+
+def show_pass():
+    if tick.get() == 1:
+        pass_ent.configure(show="")
+    if tick.get() == 0:
+        pass_ent.configure(show="*")
+
+
+tick = IntVar()
+Checkbutton(root, variable=tick, onvalue=1, offvalue=0, command=show_pass, bg="#ffffff", borderwidth=0,
+            highlightthickness=0,).place(x=370, y=190)
+Label(root, text='Show password', bg="#ffffff", font=('poppins', 10, 'italic')).place(x=400, y=188)
 
 
 def back():
